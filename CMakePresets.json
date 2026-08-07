@@ -1,0 +1,37 @@
+{
+    "buildPresets": [
+        {
+            "configuration": "Debug",
+            "configurePreset": "ninja",
+            "displayName": "Debug",
+            "name": "debug"
+        },
+        {
+            "configuration": "RelWithDebInfo",
+            "configurePreset": "ninja",
+            "displayName": "Release",
+            "name": "release"
+        },
+        {
+            "configuration": "Release",
+            "configurePreset": "ninja",
+            "displayName": "Production",
+            "name": "production"
+        }
+    ],
+    "configurePresets": [
+        {
+            "binaryDir": "${sourceDir}/../cmake-gen",
+            "cacheVariables": {
+                "CMAKE_CXX_STANDARD": "20",
+                "CMAKE_CXX_STANDARD_REQUIRED": "ON",
+                "CMAKE_CXX_EXTENSIONS": "OFF",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+            },
+            "displayName": "Ninja",
+            "generator": "Ninja Multi-Config",
+            "name": "ninja"
+        }
+    ],
+    "version": 4
+}
