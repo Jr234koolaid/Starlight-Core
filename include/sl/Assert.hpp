@@ -9,13 +9,13 @@
     #include "sl\Define.hpp"
     #include "sl\Log.hpp"
 
-    #if defined(SL_COMPILER_CLANG)
-        #define SL_DEBUG_BREAK()
-    #elif defined(SL_COMPILER_GCC)
-        #define SL_DEBUG_BREAK()
-    #elif defined(SL_COMPILER_MSVC)
+    #if defined(SL_COMPILER_MSVC)
         #include <intrin.h>
         #define SL_DEBUG_BREAK() __debugbreak()
+    #elif defined(SL_COMPILER_CLANG)
+        #define SL_DEBUG_BREAK() __builtin_debugtrap();
+    #elif defined(SL_COMPILER_GCC)
+        #define SL_DEBUG_BREAK()
     #endif
     
     #define SL_ASSERT(_condition_, ...)                                                                \

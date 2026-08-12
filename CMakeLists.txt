@@ -23,10 +23,7 @@ set(FILE_INCLUDES
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Hash.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Integral.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Log.hpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/PageSet.hpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/PageSet.inl"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/SparseSet.hpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/SparseSet.inl"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Trait.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Type.hpp"
 )
