@@ -38,32 +38,6 @@ namespace sl
 
 namespace sl
 {
-    template<sparse_set_value TValue>
-    struct SparseSetSmartTraits { };
-
-    template<sparse_set_value TValue>
-    struct SparseSetSmartTraits<Unique<TValue>>
-    {
-        using type = Unique<TValue>;
-    };
-
-    template<sparse_set_value TValue>
-    struct SparseSetSmartTraits<Shared<TValue>>
-    {
-        using type = Shared<TValue>;
-    };
-}
-
-namespace sl
-{
-    template<typename T>
-    concept sparse_set_smart_constraint = sparse_set_type<T> and requires {
-        typename SparseSetSmartTraits<T>::type;
-    };
-}
-
-namespace sl
-{
     inline constexpr size_t SparseSetTombstone = std::numeric_limits<size_t>::max();
 }
 
@@ -183,17 +157,7 @@ namespace sl
 
                 mDense.push_back(_index);
 
-                if constexpr (sparse_set_smart_constraint<TValue>)
-                {
-                    using UType  = typename SparseSetSmartTraits<TValue>::type;
-                    using UValue = typename TValue::element_type;
-
-                    if constexpr (std::same_as<UType, Unique<UValue>>)
-                        mValue.emplace_back(std::make_unique<UValue>(std::forward<UArgs>(_args)...));
-                    else if constexpr (std::same_as<UType, Shared<UValue>>)
-                        mValue.emplace_back(std::make_shared<UValue>(std::forward<UArgs>(_args)...));
-                } else 
-                    mValue.emplace_back(std::forward<UArgs>(_args)...);
+                mValue.emplace_back(std::forward<UArgs>(_args)...);
             }
         }
 
