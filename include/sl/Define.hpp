@@ -1,4 +1,4 @@
-// include\sl\Define.hpp
+// include/sl/Define.hpp
 
 #pragma once
 

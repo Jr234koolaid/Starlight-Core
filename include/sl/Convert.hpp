@@ -1,4 +1,4 @@
-// include\sl\Convert.hpp
+// include/sl/Convert.hpp
 
 #pragma once
 
@@ -44,7 +44,7 @@ namespace sl
 namespace sl
 {
     template<convert_all_to_type TTo, convert_all_cast_container_type TContainer> requires convert_all_cast_constraint<TTo, TContainer>
-    inline SL_NODISCARD Vector<TTo> ConvertAll(const TContainer& _from)
+    SL_NODISCARD inline Vector<TTo> ConvertAll(const TContainer& _from)
     {
         Vector<TTo> to;
         to.reserve(_from.size());
@@ -133,7 +133,7 @@ namespace sl
 namespace sl
 {
     template<convert_all_to_type TTo, convert_all_reference_container_type TContainer> requires convert_all_reference_constraint<TTo, TContainer>
-    inline SL_NODISCARD Vector<TTo> ConvertAll(TContainer& _from)
+    SL_NODISCARD inline Vector<TTo> ConvertAll(TContainer& _from)
     {
         Vector<TTo> to;
         to.reserve(_from.size());
@@ -226,7 +226,7 @@ namespace sl
 namespace sl
 {
     template<convert_all_to_type TTo, convert_all_copy_container_type TContainer> requires convert_all_copy_constraint<TTo, TContainer>
-    inline SL_NODISCARD Vector<TTo> ConvertAll(TContainer& _from)
+    SL_NODISCARD inline Vector<TTo> ConvertAll(TContainer& _from)
     {
         Vector<TTo> to;
         to.reserve(_from.size());

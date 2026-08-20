@@ -1,4 +1,4 @@
-// include\sl\Log.hpp
+// include/sl/Log.hpp
 
 #pragma once
 

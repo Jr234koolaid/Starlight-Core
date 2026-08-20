@@ -1,13 +1,12 @@
-// include\sl\Alias.hpp
+// include/sl/Alias.hpp
 
 #pragma once
 
-#include <concepts>
 #include <cstddef>
 #include <type_traits>
 #include <utility>
 
-#include "sl\Check.hpp"
+#include "sl\Assert.hpp"
 #include "sl\Define.hpp"
 
 namespace sl
@@ -22,6 +21,9 @@ namespace sl
     class Alias
     {
     public:
+        Alias() = default;
+       ~Alias() = default;
+    public:
         Alias(nullptr_t) noexcept
         {
         }
@@ -31,15 +33,21 @@ namespace sl
         {
         }
 
+        Alias(Alias&& _other) noexcept :
+            mT(std::exchange(_other.mT, nullptr))
+        {
+        }
+
+        Alias(const Alias& _other) noexcept :
+            mT(_other.mT)
+        {
+        }
+
         template<alias_type U> requires std::is_convertible_v<U*, T*>
         Alias(const Alias<U>& _other) noexcept :
             mT(_other.mT)
         {
         }
-
-    public:
-        Alias() = default;
-
     public:
         SL_NODISCARD operator T&() const noexcept
         {
@@ -51,21 +59,34 @@ namespace sl
         {
             return mT != nullptr;
         }
+    public:
+        Alias& operator=(Alias&& _other) noexcept
+        {
+            if (this != &_other)
+                mT = std::exchange(_other.mT, nullptr);
 
+            return *this;
+        }
+
+        Alias& operator=(const Alias& _other) noexcept
+        {
+            if (this != &_other)
+                mT = _other.mT;
+
+            return *this;
+        }
     public:
         SL_NODISCARD T* operator->() const noexcept
         {
             SL_ASSERT(mT, "Alias pointer-to-object is null");
             return mT;
         }
-
     public:
         SL_NODISCARD T& get() const noexcept
         {
             SL_ASSERT(mT, "Alias pointer-to-object is null");
             return *mT;
         }
-
     private:
         T* mT = nullptr;
     };

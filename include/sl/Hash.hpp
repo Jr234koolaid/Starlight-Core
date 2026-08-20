@@ -1,4 +1,4 @@
-// include\sl\Hash.hpp
+// include/sl/Hash.hpp
 
 #pragma once
 
@@ -15,7 +15,7 @@
 
 namespace sl
 {
-    inline SL_NODISCARD size_t HashCombine(size_t _seed, size_t _hash) noexcept
+    SL_NODISCARD inline size_t HashCombine(size_t _seed, size_t _hash) noexcept
     {
         _hash = (_hash ^ (_hash >> 30U)) * 0xBF58476D1CE4E5B9;
         _hash = (_hash ^ (_hash >> 27U)) * 0x94D049BB133111EB;
@@ -50,7 +50,7 @@ namespace sl
 namespace sl
 {
     template<hash_all_container_type TContainer>
-    inline SL_NODISCARD size_t HashAll(const TContainer& _container) noexcept
+    SL_NODISCARD inline size_t HashAll(const TContainer& _container) noexcept
     {
         //using TValue = std::remove_cv_t<typename HashAllTraits<typename TContainer::value_type>::type>;
         using TValue = typename HashAllTraits<typename TContainer::value_type>::type;
@@ -81,7 +81,7 @@ namespace sl
 namespace sl
 {
     template<hash_all_byte_container_type TContainer>
-    inline SL_NODISCARD size_t HashAll(const TContainer& _container) noexcept
+    SL_NODISCARD inline size_t HashAll(const TContainer& _container) noexcept
     {
         // Apparent hash optimization for byte buffers
         return Hash<StringView>()(StringView(reinterpret_cast<const char*>(_container.data()), _container.size()));

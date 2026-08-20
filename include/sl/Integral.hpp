@@ -1,4 +1,4 @@
-// include\sl\Integral.hpp
+// include/sl/Integral.hpp
 
 #pragma once
 
@@ -9,7 +9,7 @@
 namespace sl
 {
     template<typename T> requires std::is_integral_v<T>
-    inline SL_NODISCARD constexpr T inc(T& _val, T _inc) noexcept
+    SL_NODISCARD inline constexpr T inc(T& _val, T _inc) noexcept
     {
         T ret = _val;
         _val += _inc;
@@ -17,7 +17,7 @@ namespace sl
     }
 
     template<typename T> requires std::is_integral_v<T>
-    inline SL_NODISCARD constexpr T dec(T& _val, T _dec) noexcept
+    SL_NODISCARD inline constexpr T dec(T& _val, T _dec) noexcept
     {
         T ret = _val;
         _val -= _dec;

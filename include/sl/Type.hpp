@@ -1,4 +1,4 @@
-// include\sl\Type.hpp
+// include/sl/Type.hpp
 
 #pragma once
 
@@ -27,6 +27,8 @@
 #include <string_view>
 #include <system_error>
 #include <tuple>
+#include <typeindex>
+#include <typeinfo>
 #include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
@@ -38,6 +40,12 @@ namespace sl
 {
     template<typename T> requires std::is_enum_v<T>
     using UnderlyingType = std::underlying_type_t<T>;
+}
+
+namespace sl
+{
+    using TypeInfo  = std::type_info;
+    using TypeIndex = std::type_index;
 }
 
 namespace sl

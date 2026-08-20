@@ -1,4 +1,4 @@
-// include\sl\SparseSet.hpp
+// include/sl/SparseSet.hpp
 
 #pragma once
 
@@ -15,25 +15,51 @@
 namespace sl
 {
     template<typename T>
-    concept sparse_set_type = not std::is_const_v<T>;
-
-    template<typename T>
-    concept sparse_set_value_type          = std::is_integral_v<T> or std::is_class_v<T>;
-    template<typename T>
-    concept sparse_set_value_constructable = std::is_default_constructible_v<T> and std::is_move_constructible_v<T>;
-    template<typename T>
-    concept sparse_set_value_assignable    = std::is_move_assignable_v<T>;
-    template<typename T>
-    concept sparse_set_value               = sparse_set_type<T> and sparse_set_value_type<T> and sparse_set_value_constructable<T> and sparse_set_value_assignable<T>;
-
-    template<typename T>
-    concept sparse_set_integral = sparse_set_type<T> and std::is_integral_v<T>;
+    concept sparse_set_type = not std::is_const_v<T> and not std::is_reference_v<T>;
 }
 
 namespace sl
 {
-    template<size_t _PageSize>
-    using SparseSetPage = Array<size_t, _PageSize>;
+    template<typename T>
+    concept sparse_set_value_type          = sparse_set_type<T> and std::is_integral_v<T> or std::is_class_v<T>;
+    template<typename T>
+    concept sparse_set_value_constructable = sparse_set_type<T> and std::is_default_constructible_v<T> and std::is_move_constructible_v<T>;
+    template<typename T>
+    concept sparse_set_value_assignable    = sparse_set_type<T> and std::is_move_assignable_v<T>;
+    template<typename T>
+    concept sparse_set_value               = sparse_set_value_type<T> and sparse_set_value_constructable<T> and sparse_set_value_assignable<T>;
+}
+
+namespace sl
+{
+    template<typename T>
+    concept sparse_set_integral = sparse_set_value<T> and std::is_integral_v<T>;
+}
+
+namespace sl
+{
+    template<sparse_set_value TValue>
+    struct SparseSetSmartTraits { };
+
+    template<sparse_set_value TValue>
+    struct SparseSetSmartTraits<Unique<TValue>>
+    {
+        using type = Unique<TValue>;
+    };
+
+    template<sparse_set_value TValue>
+    struct SparseSetSmartTraits<Shared<TValue>>
+    {
+        using type = Shared<TValue>;
+    };
+}
+
+namespace sl
+{
+    template<typename T>
+    concept sparse_set_smart_constraint = sparse_set_type<T> and requires {
+        typename SparseSetSmartTraits<T>::type;
+    };
 }
 
 namespace sl
@@ -49,7 +75,6 @@ namespace sl
     public:
         SparseSet() = default;
        ~SparseSet() = default;
-
     public:
         SparseSet(SparseSet&& _other) noexcept:
             mSparse(std::move(_other.mSparse)),
@@ -57,7 +82,6 @@ namespace sl
             mValue (std::move(_other.mValue))
         {
         }
-
     public:
         SparseSet& operator=(SparseSet&& _other) noexcept
         {
@@ -69,7 +93,38 @@ namespace sl
             }
             return *this;
         }
+    public:
+        SL_NODISCARD Span<const TValue> values() const noexcept
+        {
+            return mValue;
+        }
 
+        SL_NODISCARD Span<const TIndex> indices() const noexcept
+        {
+            return mDense;
+        }
+    private:
+        SL_NODISCARD size_t pindex(TIndex _index) const noexcept
+        {
+            return static_cast<size_t>(_index) / _PageSize;
+        }
+
+        SL_NODISCARD size_t sindex(TIndex _index) const noexcept
+        {
+            return static_cast<size_t>(_index) % _PageSize;
+        }
+    private:
+        SL_NODISCARD size_t& index(TIndex _index) noexcept
+        {
+            const size_t pi = pindex(_index);
+            const size_t si = sindex(_index);
+            return index(pi, si);
+        }
+
+        SL_NODISCARD size_t& index(size_t _pindex, size_t _sindex) noexcept
+        {
+            return mSparse[_pindex][_sindex];
+        }
     public:
         SL_NODISCARD TValue& at(TIndex _index) noexcept
         {
@@ -88,7 +143,16 @@ namespace sl
 
             return mValue[index(pi, si)];
         }
+    private:
+        SL_NODISCARD bool contains(TIndex _index, size_t _pindex, size_t _sindex)
+        {
+            return contains(_pindex, _sindex) && (mDense[index(_pindex, _sindex)] == _index);
+        }
 
+        SL_NODISCARD bool contains(size_t _pindex, size_t _sindex)
+        {
+            return (_pindex < mSparse.size()) && (_sindex < mSparse[_pindex].size()) && (index(_pindex, _sindex) < mDense.size());
+        }
     public:
         SL_NODISCARD bool contains(TIndex _index) const noexcept
         {
@@ -96,7 +160,6 @@ namespace sl
             const size_t si = sindex(_index);
             return contains(_index, pi, si);
         }
-
     public:
         template<class... UArgs>
         void emplace(TIndex _index, UArgs&&... _args)
@@ -120,7 +183,17 @@ namespace sl
 
                 mDense.push_back(_index);
 
-                mValue.emplace_back(std::forward<UArgs>(_args)...);
+                if constexpr (sparse_set_smart_constraint<TValue>)
+                {
+                    using UType  = typename SparseSetSmartTraits<TValue>::type;
+                    using UValue = typename TValue::element_type;
+
+                    if constexpr (std::same_as<UType, Unique<UValue>>)
+                        mValue.emplace_back(std::make_unique<UValue>(std::forward<UArgs>(_args)...));
+                    else if constexpr (std::same_as<UType, Shared<UValue>>)
+                        mValue.emplace_back(std::make_shared<UValue>(std::forward<UArgs>(_args)...));
+                } else 
+                    mValue.emplace_back(std::forward<UArgs>(_args)...);
             }
         }
 
@@ -150,7 +223,6 @@ namespace sl
                 rindex = SparseSetTombstone;
             }
         }
-
     public:
         void clear() noexcept
         {
@@ -158,44 +230,8 @@ namespace sl
             mDense.clear();
             mSparse.clear();
         }
-
     private:
-        SL_NODISCARD size_t pindex(TIndex _index) const noexcept
-        {
-            return static_cast<size_t>(_index) / _PageSize;
-        }
-
-        SL_NODISCARD size_t sindex(TIndex _index) const noexcept
-        {
-            return static_cast<size_t>(_index) % _PageSize;
-        }
-
-    private:
-        SL_NODISCARD size_t& index(TIndex _index) const noexcept
-        {
-            const size_t pi = pindex(_index);
-            const size_t si = sindex(_index);
-            return index(pi, si);
-        }
-
-        SL_NODISCARD size_t& index(size_t _pindex, size_t _sindex) const noexcept
-        {
-            return mSparse[_pindex][_sindex];
-        }
-
-    private:
-        SL_NODISCARD bool contains(TIndex _index, size_t _pindex, size_t _sindex)
-        {
-            return contains(_pindex, _sindex) && (mDense[index(_pindex, _sindex)] == _index);
-        }
-
-        SL_NODISCARD bool contains(size_t _pindex, size_t _sindex)
-        {
-            return (_pindex < mSparse.size()) && (_sindex < mSparse[_pindex].size()) && (index(_pindex, _sindex) < mDense.size());
-        }
-
-    private:
-        Vector<SparseSetPage<_PageSize>> mSparse;
+        Vector<Array<size_t, _PageSize>> mSparse;
         Vector<TIndex>                   mDense;
         Vector<TValue>                   mValue;
     };
