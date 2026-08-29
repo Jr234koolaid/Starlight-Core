@@ -115,11 +115,16 @@ namespace sl
             return *this;
         }
     public:
-        SL_NODISCARD Span<const TValue> values() const noexcept
+        SL_NODISCARD Span<TValue> values() noexcept
         {
             return mValue;
         }
 
+        SL_NODISCARD Span<const TValue> values() const noexcept
+        {
+            return mValue;
+        }
+    public:
         SL_NODISCARD Span<const TIndex> indices() const noexcept
         {
             return mDense;
