@@ -6,9 +6,9 @@
 #include <cstddef>
 #include <type_traits>
 
-#include "sl\Alias.hpp"
-#include "sl\Define.hpp"
-#include "sl\Type.hpp"
+#include "sl/Alias.hpp"
+#include "sl/Define.hpp"
+#include "sl/Type.hpp"
 
 namespace sl
 {

@@ -9,7 +9,7 @@ namespace sl
     protected:
         NonCopyable()                   = default;
         NonCopyable(const NonCopyable&) = delete;
-        ~NonCopyable()                  = default;
+       ~NonCopyable()                   = default;
 
     protected:
         NonCopyable& operator=(const NonCopyable&) = delete;
@@ -23,7 +23,7 @@ namespace sl
     protected:
         NonMoveable()              = default;
         NonMoveable(NonMoveable&&) = delete;
-        ~NonMoveable()             = default;
+       ~NonMoveable()              = default;
 
     protected:
         NonMoveable& operator=(NonMoveable&&) = delete;
@@ -35,7 +35,7 @@ namespace sl
     class NonConstructable : private NonCopyable, private NonMoveable
     {
     protected:
-        NonConstructable()  = delete;
-        ~NonConstructable() = default;
+        NonConstructable() = delete;
+       ~NonConstructable() = default;
     };
 }

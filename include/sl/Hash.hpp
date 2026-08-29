@@ -6,8 +6,8 @@
 #include <cstddef>
 #include <type_traits>
 
-#include "sl\Define.hpp"
-#include "sl\Type.hpp"
+#include "sl/Define.hpp"
+#include "sl/Type.hpp"
 
 // https://stackoverflow.com/questions/664014/what-integer-hash-function-are-good-that-accepts-an-integer-hash-key/12996028#12996028
 // https://stackoverflow.com/questions/20511347/a-good-hash-function-for-a-vector/72073933#72073933

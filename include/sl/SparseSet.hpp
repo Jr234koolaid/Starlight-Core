@@ -2,48 +2,95 @@
 
 #pragma once
 
+#include <concepts>
 #include <cstddef>
 #include <limits>
 #include <utility>
 #include <type_traits>
 
-#include "sl\Assert.hpp"
-#include "sl\Define.hpp"
-#include "sl\Trait.hpp"
-#include "sl\Type.hpp"
+#include "sl/Assert.hpp"
+#include "sl/Define.hpp"
+#include "sl/Trait.hpp"
+#include "sl/Type.hpp"
 
 namespace sl
 {
     template<typename T>
-    concept sparse_set_type = not std::is_const_v<T> and not std::is_reference_v<T>;
+    concept sparse_set_type = std::is_object_v<T> and not std::is_const_v<T>;
 }
 
 namespace sl
 {
-    template<typename T>
-    concept sparse_set_value_type          = sparse_set_type<T> and std::is_integral_v<T> or std::is_class_v<T>;
-    template<typename T>
-    concept sparse_set_value_constructable = sparse_set_type<T> and std::is_default_constructible_v<T> and std::is_move_constructible_v<T>;
-    template<typename T>
-    concept sparse_set_value_assignable    = sparse_set_type<T> and std::is_move_assignable_v<T>;
-    template<typename T>
-    concept sparse_set_value               = sparse_set_value_type<T> and sparse_set_value_constructable<T> and sparse_set_value_assignable<T>;
+    template<typename TValue>
+    concept sparse_set_value_class    = sparse_set_type<TValue> and std::is_class_v<TValue> and std::default_initializable<TValue> and std::movable<TValue>;
+    template<typename TValue>
+    concept sparse_set_value_integral = sparse_set_type<TValue> and std::integral<TValue>;
+    template<typename TValue>
+    concept sparse_set_value          = sparse_set_value_class<TValue> or sparse_set_value_integral<TValue>;
 }
 
 namespace sl
 {
-    template<typename T>
-    concept sparse_set_integral = sparse_set_value<T> and std::is_integral_v<T>;
+    template<typename TIndex>
+    concept sparse_set_index = sparse_set_type<TIndex> and std::unsigned_integral<TIndex> and not std::same_as<TIndex, bool>;
 }
 
 namespace sl
 {
-    inline constexpr size_t SparseSetTombstone = std::numeric_limits<size_t>::max();
+    template<typename>
+    struct SparseSetValueIsUniquePtr : public std::false_type { };
+
+    template<typename TValue, typename TDeleter>
+    struct SparseSetValueIsUniquePtr<UniquePtr<TValue, TDeleter>> : public std::true_type { };
 }
 
 namespace sl
 {
-    template<sparse_set_type TValue, sparse_set_integral TIndex = size_t, size_t _PageSize = 256U>
+    template<typename TValue>
+    concept sparse_set_unique_ptr_value      = sparse_set_value<TValue> and SparseSetValueIsUniquePtr<TValue>::value;
+    template<typename TValue, typename TTo>
+    concept sparse_set_unique_ptr_constraint = sparse_set_unique_ptr_value<TValue> and sparse_set_value<TTo> and std::convertible_to<UniquePtr<TTo>, TValue>;
+}
+
+namespace sl
+{
+    template<typename>
+    struct SparseSetValueIsSharedPtr : public std::false_type { };
+
+    template<typename TValue>
+    struct SparseSetValueIsSharedPtr<SharedPtr<TValue>> : public std::true_type { };
+}
+
+namespace sl
+{
+    template<typename TValue>
+    concept sparse_set_shared_ptr_value      = sparse_set_value<TValue> and SparseSetValueIsSharedPtr<TValue>::value;
+    template<typename TValue, typename TTo>
+    concept sparse_set_shared_ptr_constraint = sparse_set_shared_ptr_value<TValue> and sparse_set_value<TTo> and std::convertible_to<SharedPtr<TTo>, TValue>;
+}
+
+namespace sl
+{
+    template<typename TValue>
+    concept sparse_set_smart_ptr_value      = sparse_set_unique_ptr_value<TValue> or sparse_set_shared_ptr_value<TValue>;
+    template<typename TValue, typename TTo>
+    concept sparse_set_smart_ptr_constraint = sparse_set_unique_ptr_constraint<TValue, TTo> or sparse_set_shared_ptr_constraint<TValue, TTo>;
+}
+
+namespace sl
+{
+    template<sparse_set_smart_ptr_value TValue>
+    using SparseSetValueElementType = typename TValue::element_type;
+}
+
+namespace sl
+{
+    inline constexpr size_t SparseSetTombstone = NumericLimits<size_t>::max();
+}
+
+namespace sl
+{
+    template<sparse_set_type TValue, sparse_set_index TIndex = size_t, size_t _PageSize = 256U>
     class SparseSet : public NonCopyable
     {
     public:
@@ -134,33 +181,74 @@ namespace sl
             const size_t si = sindex(_index);
             return contains(_index, pi, si);
         }
+    private:
+        void grow(size_t _pindex)
+        {
+            if (const size_t pagesize = mSparse.size(); _pindex >= pagesize)
+            {
+                const size_t newsize = _pindex + 1U;
+                mSparse.resize(newsize);
+                for (size_t i = pagesize; i < newsize; ++i)
+                    mSparse[i].fill(SparseSetTombstone);
+            }
+        }
+    private:
+        template<class... UArgs>
+        void append(UArgs&&... _args)
+        {
+            if constexpr (sparse_set_unique_ptr_value<TValue>)
+                mValue.emplace_back(std::make_unique<SparseSetValueElementType<TValue>>(std::forward<UArgs>(_args)...));
+            else if constexpr (sparse_set_shared_ptr_value<TValue>)
+                mValue.emplace_back(std::make_shared<SparseSetValueElementType<TValue>>(std::forward<UArgs>(_args)...));
+            else
+                mValue.emplace_back(std::forward<UArgs>(_args)...);
+        }
     public:
         template<class... UArgs>
         void emplace(TIndex _index, UArgs&&... _args)
         {
             const size_t pi = pindex(_index);
             const size_t si = sindex(_index);
-
             if (!contains(_index, pi, si))
             {
-                const size_t pagesize = mSparse.size();
-                if (pi >= pagesize)
-                {
-                    const size_t newsize = pi + 1U;
-
-                    mSparse.resize(newsize);
-                    for (size_t i = pagesize; i < newsize; ++i)
-                        mSparse[i].fill(SparseSetTombstone);
-                }
+                grow(pi);
 
                 mSparse[pi][si] = mDense.size();
 
                 mDense.push_back(_index);
 
-                mValue.emplace_back(std::forward<UArgs>(_args)...);
+                append(std::forward<UArgs>(_args)...);
             }
         }
+    private:
+        template<typename UTo, class... UArgs> requires sparse_set_smart_ptr_constraint<TValue, UTo>
+        void append(UArgs&&... _args)
+        {
+            if constexpr (sparse_set_unique_ptr_value<TValue>)
+                mValue.emplace_back(std::make_unique<UTo>(std::forward<UArgs>(_args)...));
+            else if constexpr (sparse_set_shared_ptr_value<TValue>)
+                mValue.emplace_back(std::make_shared<UTo>(std::forward<UArgs>(_args)...));
+            else
+                static_assert(false, "SparseSet smart pointer append cannot append non-smart pointer type");
+        }
+    public:
+        template<typename UTo, class... UArgs> requires sparse_set_smart_ptr_constraint<TValue, UTo>
+        void emplace(TIndex _index, UArgs&&... _args)
+        {
+            const size_t pi = pindex(_index);
+            const size_t si = sindex(_index);
+            if (!contains(_index, pi, si))
+            {
+                grow(pi);
 
+                mSparse[pi][si] = mDense.size();
+
+                mDense.push_back(_index);
+
+                append<UTo>(std::forward<UArgs>(_args)...);
+            }
+        }
+    public:
         void erase(TIndex _index) noexcept
         {
             const size_t pi = pindex(_index);

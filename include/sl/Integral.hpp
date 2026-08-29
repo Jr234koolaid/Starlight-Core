@@ -2,24 +2,25 @@
 
 #pragma once
 
+#include <concepts>
 #include <type_traits>
 
-#include "sl\Define.hpp"
+#include "sl/Define.hpp"
 
 namespace sl
 {
-    template<typename T> requires std::is_integral_v<T>
-    SL_NODISCARD inline constexpr T inc(T& _val, T _inc) noexcept
+    template<std::integral _Integral>
+    SL_NODISCARD inline constexpr _Integral inc(_Integral& _val, _Integral _inc) noexcept
     {
-        T ret = _val;
+        _Integral ret = _val;
         _val += _inc;
         return ret;
     }
 
-    template<typename T> requires std::is_integral_v<T>
-    SL_NODISCARD inline constexpr T dec(T& _val, T _dec) noexcept
+    template<std::integral _Integral>
+    SL_NODISCARD inline constexpr _Integral dec(_Integral& _val, _Integral _dec) noexcept
     {
-        T ret = _val;
+        _Integral ret = _val;
         _val -= _dec;
         return ret;
     }

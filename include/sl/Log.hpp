@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <format>
 
-#include "sl\Type.hpp"
+#include "sl/Type.hpp"
 
 namespace sl
 {

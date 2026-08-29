@@ -6,8 +6,8 @@
 #include <type_traits>
 #include <utility>
 
-#include "sl\Assert.hpp"
-#include "sl\Define.hpp"
+#include "sl/Assert.hpp"
+#include "sl/Define.hpp"
 
 namespace sl
 {

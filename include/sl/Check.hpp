@@ -3,7 +3,7 @@
 #pragma once
 
 #if defined(_DEBUG)
-    #include "sl\Assert.hpp"
+    #include "sl/Assert.hpp"
 
     #define SL_CHECK(_expression_, _return_, ...)   SL_ASSERT(_expression_ __VA_OPT__(, ) __VA_ARGS__)
     #define SL_CHECK_VOID(_expression_, ...)        SL_ASSERT(_expression_ __VA_OPT__(, ) __VA_ARGS__)
@@ -13,8 +13,8 @@
 #else
     #include <exception>
 
-    #include "sl\Define.hpp"
-    #include "sl\Log.hpp"
+    #include "sl/Define.hpp"
+    #include "sl/Log.hpp"
 
     #define SL_CHECK(_expression_, _return_, ...)   \
         if (!(_expression_)) SL_UNLIKELY {          \
