@@ -11,6 +11,7 @@ project(StarlightCore VERSION 1.0.0 LANGUAGES CXX)
 
 set(FILE_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/sl/Log.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/sl/String.cpp"
 )
 
 set(FILE_INCLUDES
@@ -24,6 +25,7 @@ set(FILE_INCLUDES
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Integral.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Log.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/SparseSet.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/String.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Trait.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Type.hpp"
 )
