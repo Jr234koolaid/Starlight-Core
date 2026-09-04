@@ -7,5 +7,5 @@
 
 namespace sl
 {
-    SL_NODISCARD static Wstring WidenString(StringView _string);
+    SL_NODISCARD Wstring WidenString(StringView _string);
 }
