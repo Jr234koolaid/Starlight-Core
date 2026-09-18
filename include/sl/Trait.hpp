@@ -10,7 +10,6 @@ namespace sl
         NonCopyable()                   = default;
         NonCopyable(const NonCopyable&) = delete;
        ~NonCopyable()                   = default;
-
     protected:
         NonCopyable& operator=(const NonCopyable&) = delete;
     };
@@ -24,7 +23,6 @@ namespace sl
         NonMoveable()              = default;
         NonMoveable(NonMoveable&&) = delete;
        ~NonMoveable()              = default;
-
     protected:
         NonMoveable& operator=(NonMoveable&&) = delete;
     };

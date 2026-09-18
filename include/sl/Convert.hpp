@@ -4,6 +4,7 @@
 
 #include <concepts>
 #include <cstddef>
+#include <ranges>
 #include <type_traits>
 
 #include "sl/Alias.hpp"
@@ -12,44 +13,29 @@
 
 namespace sl
 {
-    template<class TFrom>
-    concept convert_all_from_type = std::is_class_v<TFrom>;
-
+    template<class TValue>
+    concept convert_type_value     = std::is_object_v<TValue>;
     template<class TTo>
-    concept convert_all_to_type = std::is_class_v<std::remove_pointer_t<TTo>> or std::is_integral_v<std::remove_pointer_t<TTo>>;
-
+    concept convert_type_to        = std::copyable<TTo> and std::is_object_v<TTo> and not std::is_const_v<TTo>;
     template<class TContainer>
-    concept convert_all_container_type = std::is_class_v<TContainer> and requires(const TContainer& _Container) {
-        { _Container.size() } -> std::convertible_to<size_t>;
-    };
+    concept convert_type_container = std::ranges::sized_range<TContainer> and convert_type_value<typename TContainer::value_type>;
 }
 
 namespace sl
 {
-    template<class TFrom>
-    concept convert_all_cast_from_type = convert_all_from_type<TFrom>;
-
-    template<class TContainer>
-    concept convert_all_cast_type = convert_all_cast_from_type<typename TContainer::value_type>;
-
-    template<class TContainer>
-    concept convert_all_cast_container_type = convert_all_container_type<TContainer> and convert_all_cast_type<TContainer>;
-
     template<class TTo, class TContainer>
-    concept convert_all_cast_constraint = (
-        convert_all_to_type<TTo> and convert_all_cast_container_type<TContainer> and std::convertible_to<typename TContainer::value_type, TTo>
-    );
+    concept convert_cast_constraint = convert_type_to<TTo> and convert_type_container<TContainer> and std::convertible_to<typename TContainer::value_type, TTo>;
 }
 
 namespace sl
 {
-    template<convert_all_to_type TTo, convert_all_cast_container_type TContainer> requires convert_all_cast_constraint<TTo, TContainer>
-    SL_NODISCARD inline Vector<TTo> ConvertAll(const TContainer& _from)
+    template<convert_type_to TTo, convert_type_container TContainer> requires convert_cast_constraint<TTo, TContainer>
+    SL_NODISCARD inline Vector<TTo> ConvertAll(const TContainer& values)
     {
         Vector<TTo> to;
-        to.reserve(_from.size());
+        to.reserve(values.size());
 
-        for (const auto& castable : _from)
+        for (const auto& castable : values)
             to.push_back(static_cast<TTo>(castable));
 
         return to;
@@ -58,89 +44,113 @@ namespace sl
 
 namespace sl
 {
-    template<class TFrom>
-    struct ConvertAllIsReferenceable
-    {
-        static inline constexpr bool value = true;
-    };
+    template<class>
+    struct ConvertValueIsReference : public Falsable { };
+    template<class T>
+    struct ConvertValueIsReference<Reference<T>> : public Truable { };
+}
 
-    template<>
-    struct ConvertAllIsReferenceable<const char*>
-    {
-        static inline constexpr bool value = true;
-    };
+namespace sl
+{
+    template<class T>
+    concept convert_reference_value = (convert_type_value<T> or convert_type_to<T>) and ConvertValueIsReference<T>::value;
+}
 
+namespace sl
+{
+    template<class>
+    struct ConvertValueIsAlias : public Falsable { };
+    template<class T>
+    struct ConvertValueIsAlias<Alias<T>> : public Truable { };
+}
+
+namespace sl
+{
+    template<class T>
+    concept convert_alias_value = (convert_type_value<T> or convert_type_to<T>) and ConvertValueIsAlias<T>::value;
+}
+
+namespace sl
+{
+    template<class>
+    struct ConvertValueIsCString : public Falsable { };
     template<>
-    struct ConvertAllIsReferenceable<String>
-    {
-        static inline constexpr bool value = true;
-    };
+    struct ConvertValueIsCString<const char*> : public Truable { };
+}
+
+namespace sl
+{
+    template<class T>
+    concept convert_cstring_value = (convert_type_value<T> or convert_type_to<T>) and ConvertValueIsCString<T>::value;
+}
+
+namespace sl
+{
+    template<class>
+    struct ConvertValueIsStringView : public Falsable { };
+    template<>
+    struct ConvertValueIsStringView<StringView> : public Truable { };
+}
+
+namespace sl
+{
+    template<class T>
+    concept convert_stringview_value = (convert_type_value<T> or convert_type_to<T>) and ConvertValueIsStringView<T>::value;
+}
+
+namespace sl
+{
+    template<class>
+    struct ConvertValueIsString : public Falsable { };
+    template<>
+    struct ConvertValueIsString<String> : public Truable { };
+}
+
+namespace sl
+{
+    template<class T>
+    concept convert_string_value = (convert_type_value<T> or convert_type_to<T>) and ConvertValueIsString<T>::value;
 }
 
 namespace sl
 {
     template<class TFrom, class TTo>
-    struct ConvertAllReferenceTraits { };
-
+    struct ConvertTypeIsReferenceable : public Falsable { };
     template<class TFrom, class TTo>
-    struct ConvertAllReferenceTraits<TFrom, Reference<TTo>>
-    {
-        using type = Reference<TTo>;
-    };
-
+    struct ConvertTypeIsReferenceable<TFrom, Reference<TTo>> : public Truable { };
     template<class TFrom, class TTo>
-    struct ConvertAllReferenceTraits<TFrom, Alias<TTo>>
-    {
-        using type = Alias<TTo>;
-    };
-
+    struct ConvertTypeIsReferenceable<TFrom, Alias<TTo>> : public Truable { };
     template<>
-    struct ConvertAllReferenceTraits<const char*, StringView>
-    {
-        using type = StringView;
-    };
-
+    struct ConvertTypeIsReferenceable<const char*, StringView> : public Truable { };
     template<>
-    struct ConvertAllReferenceTraits<String, StringView>
-    {
-        using type = StringView;
-    };
-
+    struct ConvertTypeIsReferenceable<String, const char*> : public Truable { };
     template<>
-    struct ConvertAllReferenceTraits<String, const char*>
-    {
-        using type = const char*;
-    };
+    struct ConvertTypeIsReferenceable<String, StringView> : public Truable { };
 }
 
 namespace sl
 {
-    template<class TFrom>
-    concept convert_all_reference_from_type = ConvertAllIsReferenceable<TFrom>::value;
+    template<convert_type_to TTo, convert_type_container TContainer>
+    static inline constexpr bool ConvertTypeIsReferenceableValue = ConvertTypeIsReferenceable<typename TContainer::value_type, TTo>::value;
+}
 
-    template<class TContainer>
-    concept convert_all_reference_type = convert_all_reference_from_type<typename TContainer::value_type>;
-
-    template<class TContainer>
-    concept convert_all_reference_container_type = convert_all_container_type<TContainer> and convert_all_reference_type<TContainer>;
-
+namespace sl
+{
     template<class TTo, class TContainer>
-    concept convert_all_reference_constraint = convert_all_to_type<TTo> and convert_all_reference_container_type<TContainer> and requires {
-        typename ConvertAllReferenceTraits<typename TContainer::value_type, TTo>::type;
-    };
+    concept convert_reference_constraint = convert_type_to<TTo> and convert_type_container<TContainer> and ConvertTypeIsReferenceableValue<TTo, TContainer>;
 }
 
 namespace sl
 {
-    template<convert_all_to_type TTo, convert_all_reference_container_type TContainer> requires convert_all_reference_constraint<TTo, TContainer>
-    SL_NODISCARD inline Vector<TTo> ConvertAll(TContainer& _from)
+    template<convert_type_to TTo, convert_type_container TContainer> requires convert_reference_constraint<TTo, TContainer>
+    SL_NODISCARD inline Vector<TTo> ConvertAll(TContainer& values)
     {
         Vector<TTo> to;
-        to.reserve(_from.size());
+        to.reserve(values.size());
 
-        for (auto& referenceable : _from)
+        for (auto& referenceable : values)
         {
-            if constexpr (std::same_as<typename TContainer::value_type, String>)
+            if constexpr (convert_string_value<typename TContainer::value_type> && convert_cstring_value<TTo>)
                 to.push_back(referenceable.c_str());
             else
                 to.emplace_back(referenceable);
@@ -151,92 +161,54 @@ namespace sl
 
 namespace sl
 {
-    template<class TFrom>
-    struct ConvertAllIsCopyable
-    {
-        static inline constexpr bool value = false;
-    };
-
-    template<class TFrom>
-    struct ConvertAllIsCopyable<Reference<TFrom>>
-    {
-        static inline constexpr bool value = true;
-    };
-
-    template<class TFrom>
-    struct ConvertAllIsCopyable<Alias<TFrom>>
-    {
-        static inline constexpr bool value = true;
-    };
-
+    template<class TFrom, class TTo>
+    struct ConvertTypeIsCopyable : public Falsable { };
+    template<class TFrom, class TTo>
+    struct ConvertTypeIsCopyable<Reference<TFrom>, TTo> : public Truable { };
+    template<class TFrom, class TTo>
+    struct ConvertTypeIsCopyable<Alias<TFrom>, TTo> : public Truable { };
     template<>
-    struct ConvertAllIsCopyable<StringView>
-    {
-        static inline constexpr bool value = true;
-    };
+    struct ConvertTypeIsCopyable<const char*, String> : public Truable { };
+    template<>
+    struct ConvertTypeIsCopyable<StringView, const char*> : public Truable { };
+    template<>
+    struct ConvertTypeIsCopyable<StringView, String> : public Truable { };
 }
 
 namespace sl
 {
-    template<class TFrom, class TTo>
-    struct ConvertAllCopyTraits{ };
-
-    template<class TFrom, class TTo>
-    struct ConvertAllCopyTraits<Reference<TFrom>, TTo>
-    {
-        using type = TTo;
-    };
-
-    template<class TFrom, class TTo>
-    struct ConvertAllCopyTraits<Alias<TFrom>, TTo>
-    {
-        using type = TTo;
-    };
-
-    template<>
-    struct ConvertAllCopyTraits<StringView, const char*>
-    {
-        using type = const char*;
-    };
-
-    template<>
-    struct ConvertAllCopyTraits<StringView, String>
-    {
-        using type = String;
-    };
+    template<convert_type_to TTo, convert_type_container TContainer>
+    static inline constexpr bool ConvertTypeIsCopyableValue = ConvertTypeIsCopyable<typename TContainer::value_type, TTo>::value;
 }
 
 namespace sl
 {
-    template<class TFrom>
-    concept convert_all_copy_from_type = ConvertAllIsCopyable<TFrom>::value;
-
-    template<class TContainer>
-    concept convert_all_copy_type = convert_all_copy_from_type<typename TContainer::value_type>;
-
-    template<class TContainer>
-    concept convert_all_copy_container_type = convert_all_container_type<TContainer> and convert_all_copy_type<TContainer>;
-
     template<class TTo, class TContainer>
-    concept convert_all_copy_constraint = convert_all_to_type<TTo> and convert_all_copy_container_type<TContainer> and requires {
-        typename ConvertAllCopyTraits<typename TContainer::value_type, TTo>::type;
-    };
+    concept convert_copy_constraint = convert_type_to<TTo> and convert_type_container<TContainer> and ConvertTypeIsCopyableValue<TTo, TContainer>;
 }
 
 namespace sl
 {
-    template<convert_all_to_type TTo, convert_all_copy_container_type TContainer> requires convert_all_copy_constraint<TTo, TContainer>
-    SL_NODISCARD inline Vector<TTo> ConvertAll(TContainer& _from)
+    template<convert_type_to TTo, convert_type_container TContainer> requires convert_copy_constraint<TTo, TContainer>
+    SL_NODISCARD inline Vector<TTo> ConvertAll(TContainer& values)
     {
         Vector<TTo> to;
-        to.reserve(_from.size());
+        to.reserve(values.size());
 
-        for (auto& copyable : _from)
+        for (auto& copyable : values)
         {
-            if constexpr (std::same_as<typename TContainer::value_type, StringView>)
+            if constexpr (convert_reference_value<typename TContainer::value_type>)
+                to.push_back(copyable.get());
+            else if constexpr (convert_alias_value<typename TContainer::value_type>)
+                to.push_back(copyable.get());
+            else if constexpr (convert_cstring_value<typename TContainer::value_type>)
+                to.emplace_back(copyable);
+            else if constexpr (convert_stringview_value<typename TContainer::value_type> and convert_cstring_value<TTo>)
+                to.push_back(copyable.data());
+            else if constexpr (convert_stringview_value<typename TContainer::value_type> and convert_string_value<TTo>)
                 to.emplace_back(copyable.data());
             else
-                to.push_back(copyable.get());
+                static_assert("Convert copy container type is not copyable from a reference/value type");
         }
         return to;
     }

@@ -270,7 +270,12 @@ namespace sl
 namespace sl
 {
     template<class T>
-    using UnderlyingType = std::underlying_type_t<T>;
+    using UnderlyingType   = std::underlying_type_t<T>;
+    template<class T, T _Val>
+    using IntegralConstant = std::integral_constant<T, _Val>;
+
+    using Truable          = std::true_type;
+    using Falsable         = std::false_type;
 }
 
 #include <unordered_map>

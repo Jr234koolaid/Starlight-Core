@@ -5,8 +5,8 @@
 #include <concepts>
 #include <cstddef>
 #include <limits>
-#include <utility>
 #include <type_traits>
+#include <utility>
 
 #include "sl/Assert.hpp"
 #include "sl/Define.hpp"
@@ -15,50 +15,48 @@
 
 namespace sl
 {
-    template<typename T>
+    template<class T>
     concept sparse_set_type = std::is_object_v<T> and not std::is_const_v<T>;
 }
 
 namespace sl
 {
-    template<typename TValue>
+    template<class TValue>
     concept sparse_set_value_class    = sparse_set_type<TValue> and std::is_class_v<TValue> and std::default_initializable<TValue> and std::movable<TValue>;
-    template<typename TValue>
+    template<class TValue>
     concept sparse_set_value_integral = sparse_set_type<TValue> and std::integral<TValue>;
-    template<typename TValue>
+    template<class TValue>
     concept sparse_set_value          = sparse_set_value_class<TValue> or sparse_set_value_integral<TValue>;
 }
 
 namespace sl
 {
-    template<typename TIndex>
+    template<class TIndex>
     concept sparse_set_index = sparse_set_type<TIndex> and std::unsigned_integral<TIndex> and not std::same_as<TIndex, bool>;
 }
 
 namespace sl
 {
-    template<typename>
-    struct SparseSetValueIsUniquePtr : public std::false_type { };
-
-    template<typename TValue, typename TDeleter>
-    struct SparseSetValueIsUniquePtr<UniquePtr<TValue, TDeleter>> : public std::true_type { };
+    template<class>
+    struct SparseSetValueIsUniquePtr : public Falsable { };
+    template<class TValue, class TDeleter>
+    struct SparseSetValueIsUniquePtr<UniquePtr<TValue, TDeleter>> : public Truable { };
 }
 
 namespace sl
 {
-    template<typename TValue>
+    template<class TValue>
     concept sparse_set_unique_ptr_value      = sparse_set_value<TValue> and SparseSetValueIsUniquePtr<TValue>::value;
-    template<typename TValue, typename TTo>
+    template<class TValue, class TTo>
     concept sparse_set_unique_ptr_constraint = sparse_set_unique_ptr_value<TValue> and sparse_set_value<TTo> and std::convertible_to<UniquePtr<TTo>, TValue>;
 }
 
 namespace sl
 {
-    template<typename>
-    struct SparseSetValueIsSharedPtr : public std::false_type { };
-
-    template<typename TValue>
-    struct SparseSetValueIsSharedPtr<SharedPtr<TValue>> : public std::true_type { };
+    template<class>
+    struct SparseSetValueIsSharedPtr : public Falsable { };
+    template<class TValue>
+    struct SparseSetValueIsSharedPtr<SharedPtr<TValue>> : public Truable { };
 }
 
 namespace sl

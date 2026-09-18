@@ -21,10 +21,7 @@ namespace sl
     class Alias
     {
     public:
-        Alias() = default;
-       ~Alias() = default;
-    public:
-        Alias(nullptr_t) noexcept
+        Alias(std::nullptr_t) noexcept
         {
         }
 
@@ -32,7 +29,10 @@ namespace sl
             mT(&_t)
         {
         }
-
+    public:
+        Alias() = default;
+       ~Alias() = default;
+    public:
         Alias(Alias&& _other) noexcept :
             mT(std::exchange(_other.mT, nullptr))
         {
