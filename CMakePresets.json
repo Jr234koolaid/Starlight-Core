@@ -23,6 +23,7 @@
         {
             "binaryDir": "${sourceDir}/../cmake-gen",
             "cacheVariables": {
+                "BUILD_TESTING": "ON",
                 "CMAKE_CXX_STANDARD": "20",
                 "CMAKE_CXX_STANDARD_REQUIRED": "ON",
                 "CMAKE_CXX_EXTENSIONS": "OFF",
@@ -31,6 +32,28 @@
             "displayName": "Ninja",
             "generator": "Ninja Multi-Config",
             "name": "ninja"
+        },
+        {
+            "cacheVariables": {
+                "BUILD_TESTING": "ON"
+            },
+            "displayName": "Ninja Production",
+            "inherits": "ninja",
+            "name": "ninja-production"
+        }
+    ],
+    "testPresets": [
+        {
+            "configuration": "Debug",
+            "configurePreset": "ninja",
+            "displayName": "Debug Tests",
+            "name": "debug-tests"
+        },
+        {
+            "configuration": "RelWithDebInfo",
+            "configurePreset": "ninja",
+            "displayName": "Release Tests",
+            "name": "release-tests"
         }
     ],
     "version": 4

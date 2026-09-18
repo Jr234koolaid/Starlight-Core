@@ -13,7 +13,6 @@ set(FILE_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/sl/Log.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/sl/MultiByteString.cpp"
 )
-
 set(FILE_INCLUDES
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Alias.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Assert.hpp"
@@ -37,9 +36,10 @@ set_target_properties(StarlightCore PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMAKE
 target_compile_features(StarlightCore PUBLIC cxx_std_20)
 target_compile_options(StarlightCore PUBLIC $<$<CXX_COMPILER_ID:MSVC>:/Zc:preprocessor>)
 target_compile_definitions(StarlightCore PRIVATE $<$<BOOL:${WIN32}>:UNICODE;_UNICODE>)
-
 target_precompile_headers(StarlightCore PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/pch/slpch.hpp")
-
 target_sources(StarlightCore PRIVATE ${FILE_SOURCES} PUBLIC FILE_SET HEADERS BASE_DIRS include FILES ${FILES_INCLUDES})
-
 target_include_directories(StarlightCore PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
+
+if (BUILD_TESTING)
+    add_subdirectory(test)
+endif()
