@@ -13,7 +13,7 @@ project(StarlightCore VERSION 1.0.0 LANGUAGES CXX)
 # Starlight-Core Library
 #
 set(FILE_SOURCES
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/sl/utility/Log.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/sl/Log.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/sl/utility/MultiByteString.cpp"
 )
 
@@ -25,12 +25,12 @@ set(FILE_INCLUDES
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Check.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Define.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Enum.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Integral.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Log.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Trait.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Type.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/utility/Convert.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/utility/Hash.hpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/utility/Integral.hpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/utility/Log.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/utility/MultiByteString.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/utility/SparseSet.hpp"
 )

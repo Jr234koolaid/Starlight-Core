@@ -1,13 +1,13 @@
-// src/sl/utility/Log.cpp
+// src/sl/Log.cpp
 
 #include <cstdint>
 #include <format>
 #include <iostream>
 
+#include "sl/Log.hpp"
 #include "sl/Type.hpp"
-#include "sl/utility/Log.hpp"
 
-namespace sl::utility
+namespace sl
 {
     static void WriteToDisk(const String&)
     {
@@ -15,7 +15,7 @@ namespace sl::utility
     }
 }
 
-namespace sl::utility
+namespace sl
 {
     static void WriteDebug(const String& message)
     {
@@ -66,29 +66,29 @@ namespace sl::utility
     }
 }
 
-namespace sl::utility
+namespace sl
 {
-    void LogMessage(LogLevel level, const String& message)
+    void Log(LogLevel level, const String& message)
     {
         switch (level) { using enum LogLevel;
-        case LOG_DEBUG:
-            WriteDebug(message);
-            break;
-        case LOG_SUCCESS:
-            WriteSuccess(message);
-            break;
-        case LOG_WARNING:
-            WriteWarning(message);
-            break;
-        case LOG_ERROR:
-            WriteError(message);
-            break;
-        case LOG_FATAL:
-            WriteFatal(message);
-            break;
-        case LOG_MESSAGE:
-            WriteMessage(message);
-            break;
+            case LOG_DEBUG:
+                WriteDebug(message);
+                break;
+            case LOG_SUCCESS:
+                WriteSuccess(message);
+                break;
+            case LOG_WARNING:
+                WriteWarning(message);
+                break;
+            case LOG_ERROR:
+                WriteError(message);
+                break;
+            case LOG_FATAL:
+                WriteFatal(message);
+                break;
+            case LOG_MESSAGE:
+                WriteMessage(message);
+                break;
         };
     }
 }
