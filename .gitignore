@@ -12,9 +12,14 @@
 *.code-workspace
 
 # User-specific folders
+[Tt]est/
+[Tt]ests/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 #*.userprefs
+
+# CMake files
+CMakeUserPresets.json
 
 # Mono auto generated files
 #mono_crash.*

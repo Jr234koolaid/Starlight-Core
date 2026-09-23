@@ -1,60 +1,37 @@
 {
-    "buildPresets": [
-        {
-            "configuration": "Debug",
-            "configurePreset": "ninja",
-            "displayName": "Debug",
-            "name": "debug"
-        },
-        {
-            "configuration": "RelWithDebInfo",
-            "configurePreset": "ninja",
-            "displayName": "Release",
-            "name": "release"
-        },
-        {
-            "configuration": "Release",
-            "configurePreset": "ninja",
-            "displayName": "Production",
-            "name": "production"
-        }
-    ],
+    "version": 4,
     "configurePresets": [
         {
-            "binaryDir": "${sourceDir}/../cmake-gen",
+            "name": "ninja",
+            "displayName": "Ninja",
+            "generator": "Ninja Multi-Config",
+            "binaryDir": "${sourceDir}/cmake_gen/build",
             "cacheVariables": {
-                "BUILD_TESTING": "ON",
-                "CMAKE_CXX_STANDARD": "20",
+                "CMAKE_CXX_STANDARD": "23",
                 "CMAKE_CXX_STANDARD_REQUIRED": "ON",
                 "CMAKE_CXX_EXTENSIONS": "OFF",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
-            },
-            "displayName": "Ninja",
-            "generator": "Ninja Multi-Config",
-            "name": "ninja"
-        },
-        {
-            "cacheVariables": {
-                "BUILD_TESTING": "ON"
-            },
-            "displayName": "Ninja Production",
-            "inherits": "ninja",
-            "name": "ninja-production"
+            }
         }
     ],
-    "testPresets": [
+    "buildPresets": [
         {
-            "configuration": "Debug",
+            "name": "debug",
+            "displayName": "Debug",
             "configurePreset": "ninja",
-            "displayName": "Debug Tests",
-            "name": "debug-tests"
+            "configuration": "Debug"
         },
         {
-            "configuration": "RelWithDebInfo",
+            "name": "release",
+            "displayName": "Release",
             "configurePreset": "ninja",
-            "displayName": "Release Tests",
-            "name": "release-tests"
+            "configuration": "RelWithDebInfo"
+        },
+        {
+            "name": "production",
+            "displayName": "Production",
+            "configurePreset": "ninja",
+            "configuration": "Release"
         }
-    ],
-    "version": 4
+    ]
 }

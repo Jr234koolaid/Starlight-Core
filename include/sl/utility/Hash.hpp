@@ -1,4 +1,4 @@
-// include/sl/Hash.hpp
+// include/sl/utility/Hash.hpp
 
 #pragma once
 
@@ -6,28 +6,27 @@
 #include <cstddef>
 #include <functional>
 #include <ranges>
+#include <utility>
 
 #include "sl/Define.hpp"
 #include "sl/Type.hpp"
 
-// https://stackoverflow.com/questions/664014/what-integer-hash-function-are-good-that-accepts-an-integer-hash-key/12996028#12996028
-// https://stackoverflow.com/questions/20511347/a-good-hash-function-for-a-vector/72073933#72073933
-// https://stackoverflow.com/a/76076289
-
-// This might be against the standard
 namespace std
 {
     template<class T>
-    struct hash<sl::Reference<T>>
+    struct hash<reference_wrapper<T>>
     {
-        SL_NODISCARD size_t operator()(const sl::Reference<T>& t) const noexcept { return hash<T>()(t); }
+        SL_NODISCARD static constexpr size_t operator()(const reference_wrapper<T>& ref) noexcept { return hash<T>()(ref.get()); }
     };
 }
 
-namespace sl
+namespace sl::utility
 {
-    SL_NODISCARD inline size_t HashCombine(size_t seed, size_t hash) noexcept
+    SL_NODISCARD inline constexpr size_t HashCombine(size_t seed, size_t hash) noexcept
     {
+        // https://stackoverflow.com/questions/664014/what-integer-hash-function-are-good-that-accepts-an-integer-hash-key/12996028#12996028
+        // https://stackoverflow.com/questions/20511347/a-good-hash-function-for-a-vector/72073933#72073933
+
         hash = (hash ^ (hash >> 30U)) * 0xBF58476D1CE4E5B9;
         hash = (hash ^ (hash >> 27U)) * 0x94D049BB133111EB;
         hash = (hash ^ (hash >> 31U));
@@ -35,10 +34,10 @@ namespace sl
     }
 }
 
-namespace sl
+namespace sl::utility
 {
     template<std::ranges::range TContainer>
-    SL_NODISCARD inline size_t HashAll(const TContainer& container) noexcept
+    SL_NODISCARD inline constexpr size_t HashAll(const TContainer& container) noexcept
     {
         Hash<typename TContainer::value_type> hasher;
 
@@ -50,12 +49,12 @@ namespace sl
     }
 }
 
-namespace sl
+namespace sl::utility
 {
     template<std::ranges::range TContainer> requires std::same_as<typename TContainer::value_type, Byte>
-    SL_NODISCARD inline size_t HashAll(const TContainer& container) noexcept
+    SL_NODISCARD inline constexpr size_t HashAll(const TContainer& container) noexcept
     {
-        // Apparent hash optimization for byte buffers
+        // Apparent hash optimization for byte buffers: https://stackoverflow.com/a/76076289
         return Hash<StringView>()(StringView(reinterpret_cast<const char*>(container.data()), container.size()));
     }
 }

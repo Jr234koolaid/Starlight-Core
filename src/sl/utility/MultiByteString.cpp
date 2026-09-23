@@ -1,4 +1,4 @@
-// src/sl/MultiByteString.cpp
+// src/sl/utility/MultiByteString.cpp
 
 #include <cstdint>
 
@@ -10,10 +10,10 @@
 #include "sl/Assert.hpp"
 #include "sl/Check.hpp"
 #include "sl/Define.hpp"
-#include "sl/MultiByteString.hpp"
 #include "sl/Type.hpp"
+#include "sl/utility/MultiByteString.hpp"
 
-namespace sl
+namespace sl::utility
 {
 #if defined(_WIN32)
     static Wstring Win32MultiByteStringWiden(StringView string)
@@ -31,7 +31,7 @@ namespace sl
 #endif
 }
 
-namespace sl
+namespace sl::utility
 {
     Wstring MultiByteStringWiden(StringView string)
     {

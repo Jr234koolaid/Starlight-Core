@@ -1,4 +1,4 @@
-// include/sl/SparseSet.hpp
+// include/sl/utility/SparseSet.hpp
 
 #pragma once
 
@@ -13,13 +13,13 @@
 #include "sl/Trait.hpp"
 #include "sl/Type.hpp"
 
-namespace sl
+namespace sl::utility
 {
     template<class T>
     concept sparse_set_type = std::is_object_v<T> and not std::is_const_v<T>;
 }
 
-namespace sl
+namespace sl::utility
 {
     template<class TValue>
     concept sparse_set_value_class    = sparse_set_type<TValue> and std::is_class_v<TValue> and std::default_initializable<TValue> and std::movable<TValue>;
@@ -29,13 +29,13 @@ namespace sl
     concept sparse_set_value          = sparse_set_value_class<TValue> or sparse_set_value_integral<TValue>;
 }
 
-namespace sl
+namespace sl::utility
 {
     template<class TIndex>
     concept sparse_set_index = sparse_set_type<TIndex> and std::unsigned_integral<TIndex> and not std::same_as<TIndex, bool>;
 }
 
-namespace sl
+namespace sl::utility
 {
     template<class>
     struct SparseSetValueIsUniquePtr : public Falsable { };
@@ -43,7 +43,7 @@ namespace sl
     struct SparseSetValueIsUniquePtr<UniquePtr<TValue, TDeleter>> : public Truable { };
 }
 
-namespace sl
+namespace sl::utility
 {
     template<class TValue>
     concept sparse_set_unique_ptr_value      = sparse_set_value<TValue> and SparseSetValueIsUniquePtr<TValue>::value;
@@ -51,7 +51,7 @@ namespace sl
     concept sparse_set_unique_ptr_constraint = sparse_set_unique_ptr_value<TValue> and sparse_set_value<TTo> and std::convertible_to<UniquePtr<TTo>, TValue>;
 }
 
-namespace sl
+namespace sl::utility
 {
     template<class>
     struct SparseSetValueIsSharedPtr : public Falsable { };
@@ -59,7 +59,7 @@ namespace sl
     struct SparseSetValueIsSharedPtr<SharedPtr<TValue>> : public Truable { };
 }
 
-namespace sl
+namespace sl::utility
 {
     template<typename TValue>
     concept sparse_set_shared_ptr_value      = sparse_set_value<TValue> and SparseSetValueIsSharedPtr<TValue>::value;
@@ -67,7 +67,7 @@ namespace sl
     concept sparse_set_shared_ptr_constraint = sparse_set_shared_ptr_value<TValue> and sparse_set_value<TTo> and std::convertible_to<SharedPtr<TTo>, TValue>;
 }
 
-namespace sl
+namespace sl::utility
 {
     template<typename TValue>
     concept sparse_set_smart_ptr_value      = sparse_set_unique_ptr_value<TValue> or sparse_set_shared_ptr_value<TValue>;
@@ -75,201 +75,191 @@ namespace sl
     concept sparse_set_smart_ptr_constraint = sparse_set_unique_ptr_constraint<TValue, TTo> or sparse_set_shared_ptr_constraint<TValue, TTo>;
 }
 
-namespace sl
+namespace sl::utility
 {
     template<sparse_set_smart_ptr_value TValue>
     using SparseSetValueElementType = typename TValue::element_type;
 }
 
-namespace sl
+namespace sl::utility
 {
     inline constexpr size_t SparseSetTombstone = NumericLimits<size_t>::max();
 }
 
-namespace sl
+namespace sl::utility
 {
     template<sparse_set_type TValue, sparse_set_index TIndex = size_t, size_t _PageSize = 256U>
     class SparseSet : public NonCopyable
     {
     public:
-        SparseSet() = default;
-       ~SparseSet() = default;
+        constexpr SparseSet()  = default;
+        constexpr ~SparseSet() = default;
     public:
-        SparseSet(SparseSet&& _other) noexcept:
-            mSparse(std::move(_other.mSparse)),
-            mDense (std::move(_other.mDense)),
-            mValue (std::move(_other.mValue))
+        constexpr SparseSet(SparseSet&& other) noexcept:
+            mSparse(std::move(other.mSparse)),
+            mDense (std::move(other.mDense)),
+            mValue (std::move(other.mValue))
         {
         }
     public:
-        SparseSet& operator=(SparseSet&& _other) noexcept
+        constexpr SparseSet& operator=(SparseSet&& other) noexcept
         {
-            if (this != &_other)
+            if (this != &other)
             {
-                mValue  = std::move(_other.mValue);
-                mDense  = std::move(_other.mDense);
-                mSparse = std::move(_other.mSparse);
+                mValue  = std::move(other.mValue);
+                mDense  = std::move(other.mDense);
+                mSparse = std::move(other.mSparse);
             }
             return *this;
         }
     public:
-        SL_NODISCARD Span<TValue> values() noexcept
+        SL_NODISCARD constexpr Span<TValue> values() noexcept
         {
             return mValue;
         }
 
-        SL_NODISCARD Span<const TValue> values() const noexcept
+        SL_NODISCARD constexpr Span<const TValue> values() const noexcept
         {
             return mValue;
         }
     public:
-        SL_NODISCARD Span<const TIndex> indices() const noexcept
+        SL_NODISCARD constexpr Span<const TIndex> indices() const noexcept
         {
             return mDense;
         }
     private:
-        SL_NODISCARD size_t pindex(TIndex _index) const noexcept
+        SL_NODISCARD constexpr size_t pIndex(TIndex index) const noexcept
         {
-            return static_cast<size_t>(_index) / _PageSize;
+            return static_cast<size_t>(index) / _PageSize;
         }
 
-        SL_NODISCARD size_t sindex(TIndex _index) const noexcept
+        SL_NODISCARD constexpr size_t sIndex(TIndex index) const noexcept
         {
-            return static_cast<size_t>(_index) % _PageSize;
-        }
-    private:
-        SL_NODISCARD size_t& index(TIndex _index) noexcept
-        {
-            const size_t pi = pindex(_index);
-            const size_t si = sindex(_index);
-            return index(pi, si);
-        }
-
-        SL_NODISCARD size_t& index(size_t _pindex, size_t _sindex) noexcept
-        {
-            return mSparse[_pindex][_sindex];
+            return static_cast<size_t>(index) % _PageSize;
         }
     public:
-        SL_NODISCARD TValue& at(TIndex _index) noexcept
+        SL_NODISCARD constexpr TValue& at(TIndex index) noexcept
         {
-            const size_t pi = pindex(_index);
-            const size_t si = sindex(_index);
-            SL_ASSERT(contains(_index, pi, si), "SparseSet expects to contain a value at the given index: {}", _index);
+            const size_t pindex = pIndex(index);
+            const size_t sindex = sIndex(index);
+            SL_ASSERT(contains(index, pindex, sindex), "SparseSet expects to contain a value at the given index: '{}'", index);
 
-            return mValue[index(pi, si)];
+            return mValue[mSparse[pindex][sindex]];
         }
 
-        SL_NODISCARD const TValue& at(TIndex _index) const noexcept
+        SL_NODISCARD constexpr const TValue& at(TIndex index) const noexcept
         {
-            const size_t pi = pindex(_index);
-            const size_t si = sindex(_index);
-            SL_ASSERT(contains(_index, pi, si), "SparseSet expects to contain a value at then given index: {}", _index);
+            const size_t pindex = pIndex(index);
+            const size_t sindex = sIndex(index);
+            SL_ASSERT(contains(index, pindex, sindex), "SparseSet expects to contain a value at then given index: '{}'", index);
 
-            return mValue[index(pi, si)];
+            return mValue[mSparse[pindex][sindex]];
         }
     private:
-        SL_NODISCARD bool contains(TIndex _index, size_t _pindex, size_t _sindex)
+        SL_NODISCARD constexpr bool contains(size_t pindex, size_t sindex)
         {
-            return contains(_pindex, _sindex) && (mDense[index(_pindex, _sindex)] == _index);
+            return (pindex < mSparse.size()) && (sindex < mSparse[pindex].size()) && (mSparse[pindex][sindex] < mDense.size());
         }
 
-        SL_NODISCARD bool contains(size_t _pindex, size_t _sindex)
+        SL_NODISCARD constexpr bool contains(TIndex index, size_t pindex, size_t sindex)
         {
-            return (_pindex < mSparse.size()) && (_sindex < mSparse[_pindex].size()) && (index(_pindex, _sindex) < mDense.size());
+            return contains(pindex, sindex) && (mDense[mSparse[pindex][sindex]] == index);
         }
     public:
-        SL_NODISCARD bool contains(TIndex _index) const noexcept
+        SL_NODISCARD constexpr bool contains(TIndex index) const noexcept
         {
-            const size_t pi = pindex(_index);
-            const size_t si = sindex(_index);
-            return contains(_index, pi, si);
+            return contains(index, pIndex(index), sIndex(index));
         }
     private:
-        void grow(size_t _pindex)
+        constexpr void grow(size_t pindex)
         {
-            if (const size_t pagesize = mSparse.size(); _pindex >= pagesize)
+            if (const size_t pagesize = mSparse.size(); pindex >= pagesize)
             {
-                const size_t newsize = _pindex + 1U;
+                const size_t newsize = pindex + 1U;
                 mSparse.resize(newsize);
+
                 for (size_t i = pagesize; i < newsize; ++i)
                     mSparse[i].fill(SparseSetTombstone);
             }
         }
     private:
         template<class... UArgs>
-        void append(UArgs&&... _args)
+        constexpr void append(UArgs&&... args)
         {
             if constexpr (sparse_set_unique_ptr_value<TValue>)
-                mValue.emplace_back(std::make_unique<SparseSetValueElementType<TValue>>(std::forward<UArgs>(_args)...));
+                mValue.emplace_back(std::make_unique<SparseSetValueElementType<TValue>>(std::forward<UArgs>(args)...));
             else if constexpr (sparse_set_shared_ptr_value<TValue>)
-                mValue.emplace_back(std::make_shared<SparseSetValueElementType<TValue>>(std::forward<UArgs>(_args)...));
+                mValue.emplace_back(std::make_shared<SparseSetValueElementType<TValue>>(std::forward<UArgs>(args)...));
             else
-                mValue.emplace_back(std::forward<UArgs>(_args)...);
+                mValue.emplace_back(std::forward<UArgs>(args)...);
         }
     public:
         template<class... UArgs>
-        void emplace(TIndex _index, UArgs&&... _args)
+        constexpr void emplace(TIndex index, UArgs&&... args)
         {
-            const size_t pi = pindex(_index);
-            const size_t si = sindex(_index);
-            if (!contains(_index, pi, si))
+            const size_t pindex = pIndex(index);
+            const size_t sindex = sIndex(index);
+
+            if (!contains(index, pindex, sindex))
             {
-                grow(pi);
+                grow(pindex);
 
-                mSparse[pi][si] = mDense.size();
+                mSparse[pindex][sindex] = mDense.size();
 
-                mDense.push_back(_index);
+                mDense.push_back(index);
 
-                append(std::forward<UArgs>(_args)...);
+                append(std::forward<UArgs>(args)...);
             }
         }
     private:
         template<typename UTo, class... UArgs> requires sparse_set_smart_ptr_constraint<TValue, UTo>
-        void append(UArgs&&... _args)
+        constexpr void append(UArgs&&... args)
         {
             if constexpr (sparse_set_unique_ptr_value<TValue>)
-                mValue.emplace_back(std::make_unique<UTo>(std::forward<UArgs>(_args)...));
+                mValue.emplace_back(std::make_unique<UTo>(std::forward<UArgs>(args)...));
             else if constexpr (sparse_set_shared_ptr_value<TValue>)
-                mValue.emplace_back(std::make_shared<UTo>(std::forward<UArgs>(_args)...));
+                mValue.emplace_back(std::make_shared<UTo>(std::forward<UArgs>(args)...));
             else
                 static_assert(false, "SparseSet smart pointer append cannot append non-smart pointer type");
         }
     public:
         template<typename UTo, class... UArgs> requires sparse_set_smart_ptr_constraint<TValue, UTo>
-        void emplace(TIndex _index, UArgs&&... _args)
+        constexpr void emplace(TIndex index, UArgs&&... args)
         {
-            const size_t pi = pindex(_index);
-            const size_t si = sindex(_index);
-            if (!contains(_index, pi, si))
+            const size_t pindex = pIndex(index);
+            const size_t sindex = sIndex(index);
+
+            if (!contains(index, pindex, sindex))
             {
-                grow(pi);
+                grow(pindex);
 
-                mSparse[pi][si] = mDense.size();
+                mSparse[pindex][sindex] = mDense.size();
 
-                mDense.push_back(_index);
+                mDense.push_back(index);
 
-                append<UTo>(std::forward<UArgs>(_args)...);
+                append<UTo>(std::forward<UArgs>(args)...);
             }
         }
     public:
-        void erase(TIndex _index) noexcept
+        constexpr void erase(TIndex index) noexcept
         {
-            const size_t pi = pindex(_index);
-            const size_t si = sindex(_index);
+            const size_t pindex = pIndex(index);
+            const size_t sindex = sIndex(index);
 
-            if (contains(_index, pi, si))
+            if (contains(index, pindex, sindex))
             {
-                size_t& rindex = index(pi, si);
+                size_t& rindex = mSparse[pindex][sindex];
 
-                const size_t lindex = mDense.size() - 1U;
-                if (lindex != rindex)
+                if (const size_t lindex = mDense.size() - 1U; lindex != rindex)
                 {
                     const TIndex last = mDense[lindex];
 
                     mDense[rindex] = last;
                     mValue[rindex] = std::move(mValue[lindex]);
 
-                    index(last) = rindex;
+                    const size_t lpindex = pIndex(last);
+                    const size_t lsindex = sIndex(last);
+                    mSparse[lpindex][lsindex] = rindex;
                 }
 
                 mValue.pop_back();
@@ -279,7 +269,7 @@ namespace sl
             }
         }
     public:
-        void clear() noexcept
+        constexpr void clear() noexcept
         {
             mValue.clear();
             mDense.clear();

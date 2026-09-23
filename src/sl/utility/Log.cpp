@@ -1,13 +1,13 @@
-// src/sl/Log.cpp
+// src/sl/utility/Log.cpp
 
 #include <cstdint>
 #include <format>
 #include <iostream>
 
-#include "sl/Log.hpp"
 #include "sl/Type.hpp"
+#include "sl/utility/Log.hpp"
 
-namespace sl
+namespace sl::utility
 {
     static void WriteToDisk(const String&)
     {
@@ -15,7 +15,7 @@ namespace sl
     }
 }
 
-namespace sl
+namespace sl::utility
 {
     static void WriteDebug(const String& message)
     {
@@ -66,7 +66,7 @@ namespace sl
     }
 }
 
-namespace sl
+namespace sl::utility
 {
     void LogMessage(LogLevel level, const String& message)
     {

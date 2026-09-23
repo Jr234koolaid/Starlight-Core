@@ -1,11 +1,11 @@
-// include/sl/MultiByteString.hpp
+// include/sl/utility/MultiByteString.hpp
 
 #pragma once
 
 #include "sl/Define.hpp"
 #include "sl/Type.hpp"
 
-namespace sl
+namespace sl::utility
 {
     SL_NODISCARD Wstring MultiByteStringWiden(StringView string);
 }

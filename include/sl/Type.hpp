@@ -200,10 +200,13 @@ namespace sl
 {
     template<class T = int>
     using UniformIntDistribution = std::uniform_int_distribution<T>;
+}
 
-    using RandomDevice           = std::random_device;
-    using MersenneTwister32      = std::mt19937;
-    using MersenneTwister64      = std::mt19937_64;
+namespace sl
+{
+    using RandomDevice      = std::random_device;
+    using MersenneTwister32 = std::mt19937;
+    using MersenneTwister64 = std::mt19937_64;
 }
 
 #include <set>
@@ -273,9 +276,12 @@ namespace sl
     using UnderlyingType   = std::underlying_type_t<T>;
     template<class T, T _Val>
     using IntegralConstant = std::integral_constant<T, _Val>;
+}
 
-    using Truable          = std::true_type;
-    using Falsable         = std::false_type;
+namespace sl
+{
+    using Truable  = std::true_type;
+    using Falsable = std::false_type;
 }
 
 #include <unordered_map>

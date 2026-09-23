@@ -38,17 +38,17 @@
 #endif
 
 #if defined(SL_COMPILER_MSVC)
-    //#define SL_ASSUME(_expr_) [[assume(_expr)]]
+    #define SL_ASSUME(_expr_) [[assume(_expr)]]
     #define SL_LIKELY	      [[likely]]
     #define SL_UNLIKELY       [[unlikely]]
     #define SL_FALLTHROUGH    [[fallthrough]]
 #elif defined(SL_COMPILER_CLANG)
-    //#define SL_ASSUME(_expr_) [[assume(_expr)]]
+    #define SL_ASSUME(_expr_) [[assume(_expr)]]
     #define SL_LIKELY	      [[likely]]
     #define SL_UNLIKELY       [[unlikely]]
     #define SL_FALLTHROUGH    [[fallthrough]]
 #else
-    //#define SL_ASSUME(_expr_)
+    #define SL_ASSUME(_expr_)
     #define SL_LIKELY
     #define SL_UNLIKELY
     #define SL_FALLTHROUGH

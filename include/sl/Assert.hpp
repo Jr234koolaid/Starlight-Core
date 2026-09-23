@@ -7,7 +7,7 @@
     #include <source_location>
     
     #include "sl/Define.hpp"
-    #include "sl/Log.hpp"
+    #include "sl/utility/Log.hpp"
 
     #if defined(SL_COMPILER_MSVC)
         #include <intrin.h>

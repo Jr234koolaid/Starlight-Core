@@ -1,4 +1,4 @@
-// include/sl/Convert.hpp
+// include/sl/utility/Convert.hpp
 
 #pragma once
 
@@ -11,7 +11,7 @@
 #include "sl/Define.hpp"
 #include "sl/Type.hpp"
 
-namespace sl
+namespace sl::utility
 {
     template<class TValue>
     concept convert_type_value     = std::is_object_v<TValue>;
@@ -21,16 +21,16 @@ namespace sl
     concept convert_type_container = std::ranges::sized_range<TContainer> and convert_type_value<typename TContainer::value_type>;
 }
 
-namespace sl
+namespace sl::utility
 {
     template<class TTo, class TContainer>
     concept convert_cast_constraint = convert_type_to<TTo> and convert_type_container<TContainer> and std::convertible_to<typename TContainer::value_type, TTo>;
 }
 
-namespace sl
+namespace sl::utility
 {
     template<convert_type_to TTo, convert_type_container TContainer> requires convert_cast_constraint<TTo, TContainer>
-    SL_NODISCARD inline Vector<TTo> ConvertAll(const TContainer& values)
+    SL_NODISCARD inline constexpr Vector<TTo> ConvertAll(const TContainer& values)
     {
         Vector<TTo> to;
         to.reserve(values.size());
@@ -42,7 +42,7 @@ namespace sl
     }
 }
 
-namespace sl
+namespace sl::utility
 {
     template<class>
     struct ConvertValueIsReference : public Falsable { };
@@ -50,13 +50,13 @@ namespace sl
     struct ConvertValueIsReference<Reference<T>> : public Truable { };
 }
 
-namespace sl
+namespace sl::utility
 {
     template<class T>
     concept convert_reference_value = (convert_type_value<T> or convert_type_to<T>) and ConvertValueIsReference<T>::value;
 }
 
-namespace sl
+namespace sl::utility
 {
     template<class>
     struct ConvertValueIsAlias : public Falsable { };
@@ -64,13 +64,13 @@ namespace sl
     struct ConvertValueIsAlias<Alias<T>> : public Truable { };
 }
 
-namespace sl
+namespace sl::utility
 {
     template<class T>
     concept convert_alias_value = (convert_type_value<T> or convert_type_to<T>) and ConvertValueIsAlias<T>::value;
 }
 
-namespace sl
+namespace sl::utility
 {
     template<class>
     struct ConvertValueIsCString : public Falsable { };
@@ -78,13 +78,13 @@ namespace sl
     struct ConvertValueIsCString<const char*> : public Truable { };
 }
 
-namespace sl
+namespace sl::utility
 {
     template<class T>
     concept convert_cstring_value = (convert_type_value<T> or convert_type_to<T>) and ConvertValueIsCString<T>::value;
 }
 
-namespace sl
+namespace sl::utility
 {
     template<class>
     struct ConvertValueIsStringView : public Falsable { };
@@ -92,13 +92,13 @@ namespace sl
     struct ConvertValueIsStringView<StringView> : public Truable { };
 }
 
-namespace sl
+namespace sl::utility
 {
     template<class T>
     concept convert_stringview_value = (convert_type_value<T> or convert_type_to<T>) and ConvertValueIsStringView<T>::value;
 }
 
-namespace sl
+namespace sl::utility
 {
     template<class>
     struct ConvertValueIsString : public Falsable { };
@@ -106,13 +106,13 @@ namespace sl
     struct ConvertValueIsString<String> : public Truable { };
 }
 
-namespace sl
+namespace sl::utility
 {
     template<class T>
     concept convert_string_value = (convert_type_value<T> or convert_type_to<T>) and ConvertValueIsString<T>::value;
 }
 
-namespace sl
+namespace sl::utility
 {
     template<class TFrom, class TTo>
     struct ConvertTypeIsReferenceable : public Falsable { };
@@ -128,22 +128,22 @@ namespace sl
     struct ConvertTypeIsReferenceable<String, StringView> : public Truable { };
 }
 
-namespace sl
+namespace sl::utility
 {
     template<convert_type_to TTo, convert_type_container TContainer>
     static inline constexpr bool ConvertTypeIsReferenceableValue = ConvertTypeIsReferenceable<typename TContainer::value_type, TTo>::value;
 }
 
-namespace sl
+namespace sl::utility
 {
     template<class TTo, class TContainer>
     concept convert_reference_constraint = convert_type_to<TTo> and convert_type_container<TContainer> and ConvertTypeIsReferenceableValue<TTo, TContainer>;
 }
 
-namespace sl
+namespace sl::utility
 {
     template<convert_type_to TTo, convert_type_container TContainer> requires convert_reference_constraint<TTo, TContainer>
-    SL_NODISCARD inline Vector<TTo> ConvertAll(TContainer& values)
+    SL_NODISCARD inline constexpr Vector<TTo> ConvertAll(TContainer& values)
     {
         Vector<TTo> to;
         to.reserve(values.size());
@@ -159,7 +159,7 @@ namespace sl
     }
 }
 
-namespace sl
+namespace sl::utility
 {
     template<class TFrom, class TTo>
     struct ConvertTypeIsCopyable : public Falsable { };
@@ -175,22 +175,22 @@ namespace sl
     struct ConvertTypeIsCopyable<StringView, String> : public Truable { };
 }
 
-namespace sl
+namespace sl::utility
 {
     template<convert_type_to TTo, convert_type_container TContainer>
     static inline constexpr bool ConvertTypeIsCopyableValue = ConvertTypeIsCopyable<typename TContainer::value_type, TTo>::value;
 }
 
-namespace sl
+namespace sl::utility
 {
     template<class TTo, class TContainer>
     concept convert_copy_constraint = convert_type_to<TTo> and convert_type_container<TContainer> and ConvertTypeIsCopyableValue<TTo, TContainer>;
 }
 
-namespace sl
+namespace sl::utility
 {
     template<convert_type_to TTo, convert_type_container TContainer> requires convert_copy_constraint<TTo, TContainer>
-    SL_NODISCARD inline Vector<TTo> ConvertAll(TContainer& values)
+    SL_NODISCARD inline constexpr Vector<TTo> ConvertAll(TContainer& values)
     {
         Vector<TTo> to;
         to.reserve(values.size());
