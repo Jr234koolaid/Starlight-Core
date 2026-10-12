@@ -8,6 +8,6 @@
 
 namespace sl
 {
-    SL_NODISCARD inline char upper_cast(char c) { return static_cast<char>(std::toupper(static_cast<unsigned char>(c))); }
-    SL_NODISCARD inline char lower_cast(char c) { return static_cast<char>(std::tolower(static_cast<unsigned char>(c))); }
+    SL_NODISCARD inline decltype(auto) upper_cast(char character) { return static_cast<char>(std::toupper(static_cast<unsigned char>(character))); }
+    SL_NODISCARD inline decltype(auto) lower_cast(char character) { return static_cast<char>(std::tolower(static_cast<unsigned char>(character))); }
 }

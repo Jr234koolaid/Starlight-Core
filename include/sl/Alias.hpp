@@ -8,63 +8,65 @@
 #include <utility>
 
 #include "sl/Assert.hpp"
-#include "sl/Define.hpp"
+#include "sl/Attributes.hpp"
 
 namespace sl
 {
-    template<class T>
-    concept alias_type = std::is_object_v<T> and not std::is_function_v<T>;
+    template<typename T>
+    concept aliasable = std::is_object_v<T> and not std::is_function_v<T>;
 }
 
 namespace sl
 {
-    template<alias_type T>
+    template<aliasable _Ty>
     class Alias
     {
+    public:
+        using type = _Ty;
+    public:
+        constexpr  Alias() = default;
+        constexpr ~Alias() = default;
     public:
         constexpr Alias(nullptr_t) noexcept
         {
         }
 
-        constexpr Alias(T& ref) noexcept :
-            mPtr(&ref)
+        constexpr Alias(_Ty& reference) noexcept :
+            mPointer(&reference)
         {
         }
 
-        template<alias_type U> requires std::is_convertible_v<U*, T*>
-        constexpr Alias(const Alias<U>& alias) noexcept :
-            mPtr(alias.mPtr)
+        template<aliasable _Uy> requires std::is_convertible_v<_Uy*, _Ty*>
+        constexpr Alias(const Alias<_Uy>& alias) noexcept :
+            mPointer(alias.mPointer)
         {
         }
     public:
-        constexpr Alias()  = default;
-        constexpr ~Alias() = default;
-    public:
         constexpr Alias(Alias&& other) noexcept :
-            mPtr(std::exchange(other.mPtr, nullptr))
+            mPointer(std::exchange(other.mPointer, nullptr))
         {
         }
 
         constexpr Alias(const Alias& other) noexcept :
-            mPtr(other.mPtr)
+            mPointer(other.mPointer)
         {
         }
     public:
         SL_NODISCARD constexpr operator bool() const noexcept
         {
-            return mPtr != nullptr;
+            return mPointer != nullptr;
         }
 
-        SL_NODISCARD constexpr operator T&() const noexcept
+        SL_NODISCARD constexpr operator _Ty&() const noexcept
         {
-            SL_ASSERT(mPtr, "Alias pointer-to-object is null");
-            return *mPtr;
+            SL_ASSERT(mPointer, "Alias pointer-to-object is null");
+            return *mPointer;
         }
     public:
         constexpr Alias& operator=(Alias&& other) noexcept
         {
             if (this != &other)
-                mPtr = std::exchange(other.mPtr, nullptr);
+                mPointer = std::exchange(other.mPointer, nullptr);
 
             return *this;
         }
@@ -72,36 +74,36 @@ namespace sl
         constexpr Alias& operator=(const Alias& other) noexcept
         {
             if (this != &other)
-                mPtr = other.mPtr;
+                mPointer = other.mPointer;
 
             return *this;
         }
     public:
-        SL_NODISCARD constexpr T* operator->() const noexcept
+        SL_NODISCARD constexpr _Ty* operator->() const noexcept
         {
-            SL_ASSERT(mPtr, "Alias pointer-to-object is null");
-            return mPtr;
+            SL_ASSERT(mPointer, "Alias pointer-to-object is null");
+            return mPointer;
         }
     public:
-        SL_NODISCARD constexpr T& get() const noexcept
+        SL_NODISCARD constexpr _Ty& get() const noexcept
         {
-            SL_ASSERT(mPtr, "Alias pointer-to-object is null");
-            return *mPtr;
+            SL_ASSERT(mPointer, "Alias pointer-to-object is null");
+            return *mPointer;
         }
     private:
-        T* mPtr = nullptr;
+        _Ty* mPointer = nullptr;
     };
 }
 
 namespace sl
 {
-    template<alias_type T>
-    Alias(T&) -> Alias<T>;
+    template<aliasable _Ty>
+    Alias(_Ty&) -> Alias<_Ty>;
 }
 
 namespace std
 {
-    template<class T>
+    template<typename T>
     struct hash<sl::Alias<T>>
     {
         SL_NODISCARD static constexpr size_t operator()(const sl::Alias<T>& alias) noexcept { return hash<T>()(alias.get()); }

@@ -4,10 +4,6 @@
 
 #include <concepts>
 
-// Undefine these macros just in case
-#undef inc
-#undef dec
-
 #include "sl/Define.hpp"
 
 namespace sl

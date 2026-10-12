@@ -13,8 +13,8 @@
 #else
     #include <exception>
 
-    #include "sl/Define.hpp"
-    #include "sl/Log.hpp"
+    #include "sl/Attributes.hpp"
+    #include "sl/core/Log.hpp"
 
     #define SL_CHECK(_expression_, _return_, ...)   \
         if (!(_expression_)) SL_UNLIKELY {          \
