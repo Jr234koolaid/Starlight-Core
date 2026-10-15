@@ -14,7 +14,7 @@ project(StarlightCore VERSION 1.0.0 LANGUAGES CXX)
 #
 set(SL_FILE_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/sl/core/Log.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/sl/core/win32/String.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/sl/core/win32/Win32String.cpp"
 )
 
 set(SL_FILE_INCLUDES
