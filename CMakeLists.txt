@@ -14,7 +14,7 @@ project(StarlightCore VERSION 1.0.0 LANGUAGES CXX)
 #
 set(SL_FILE_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/sl/core/Log.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/sl/core/MultiByteString.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/sl/core/win32/String.cpp"
 )
 
 set(SL_FILE_INCLUDES
@@ -33,6 +33,7 @@ set(SL_FILE_INCLUDES
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Crash.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Deque.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Enum.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Expected.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/FileSystem.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/ForwardList.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Fstream.hpp"
@@ -66,6 +67,7 @@ set(SL_FILE_INCLUDES
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Variant.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Vector.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/core/Log.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/core/win32/String.hpp"
 )
 
 add_library(StarlightCore STATIC)
@@ -75,7 +77,7 @@ set_target_properties(StarlightCore PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMAKE
 target_compile_features(StarlightCore PUBLIC cxx_std_23)
 target_precompile_headers(StarlightCore PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/pch/slpch.hpp")
 target_include_directories(StarlightCore PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
-target_sources(StarlightCore PRIVATE ${SL_FILE_SOURCES} PUBLIC FILE_SET HEADERS BASE_DIRS include FILES ${SL_FILE_INCLUDES})
+target_sources(StarlightCore PUBLIC ${SL_FILE_SOURCES} PUBLIC FILE_SET HEADERS BASE_DIRS include FILES ${SL_FILE_INCLUDES})
 
 #
 # Starlight-Core Tests
