@@ -4,7 +4,7 @@
 
 #include <cstdint>
 
-#include "sl/Define.hpp"
+#include "sl/Attributes.hpp"
 #include "sl/Memory.hpp"
 
 namespace sl

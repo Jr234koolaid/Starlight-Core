@@ -4,7 +4,7 @@
 
 #include <concepts>
 
-#include "sl/Define.hpp"
+#include "sl/Attributes.hpp"
 
 namespace sl
 {

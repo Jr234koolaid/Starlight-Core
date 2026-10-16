@@ -4,7 +4,7 @@
 
 #include <type_traits>
 
-#include "sl/Define.hpp"
+#include "sl/Attributes.hpp"
 #include "sl/TypeTraits.hpp"
 
 namespace sl
