@@ -32,6 +32,20 @@
             );                                                                                         \
             SL_ASSERT_DEBUG_BREAK();                                                                   \
         } ((void)0)
+    #define SL_ASSERT_NOT(_condition_, ...)                                                            \
+        if ((_condition_)) SL_UNLIKELY {                                                               \
+            const auto __sl_assert_location__ = std::source_location::current();                       \
+            SL_LOG_FATAL(                                                                              \
+                "Assertion failed!\n  in {}\n  in {}\n  on line {}, column {}" __VA_OPT__("\n\n  {}"), \
+                __sl_assert_location__.file_name(),                                                    \
+                __sl_assert_location__.function_name(),                                                \
+                __sl_assert_location__.line(),                                                         \
+                __sl_assert_location__.column()                                                        \
+                __VA_OPT__(, std::format(__VA_ARGS__))                                                 \
+            );                                                                                         \
+            SL_ASSERT_DEBUG_BREAK();                                                                   \
+        } ((void)0)
 #else
     #define SL_ASSERT(_condition_, ...)
+    #define SL_ASSERT_NOT(_condition_, ...)
 #endif
