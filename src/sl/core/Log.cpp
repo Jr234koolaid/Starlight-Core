@@ -6,6 +6,7 @@
 
 #include "sl/String.hpp"
 #include "sl/Traits.hpp"
+
 #include "sl/core/Log.hpp"
 
 namespace sl::core

@@ -52,7 +52,7 @@ namespace sl
         }
 
         SL_NODISCARD constexpr operator _Ty&() const noexcept {
-            SL_ASSERT(mPointer, "Alias pointer-to-object is null");
+            SL_ASSERT_IF_NOT(mPointer, "Alias pointer-to-object is null");
             return *mPointer;
         }
     public:
@@ -71,12 +71,12 @@ namespace sl
         }
     public:
         SL_NODISCARD constexpr _Ty* operator->() const noexcept {
-            SL_ASSERT(mPointer, "Alias pointer-to-object is null");
+            SL_ASSERT_IF_NOT(mPointer, "Alias pointer-to-object is null");
             return mPointer;
         }
     public:
         SL_NODISCARD constexpr _Ty& get() const noexcept {
-            SL_ASSERT(mPointer, "Alias pointer-to-object is null");
+            SL_ASSERT_IF_NOT(mPointer, "Alias pointer-to-object is null");
             return *mPointer;
         }
     private:
