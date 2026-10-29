@@ -51,4 +51,4 @@
     #define SL_ASSERT_IF_NOT(_condition_, ...) ((void)0)
 #endif
 
-#define SL_ASSERT_IF_NULL(_condition_, ...) SL_ASSERT_IF_(_condition_ == nullptr, __VA_ARGS__)
+#define SL_ASSERT_IF_NULL(_condition_, ...) SL_ASSERT_IF(_condition_ == nullptr, __VA_ARGS__)
