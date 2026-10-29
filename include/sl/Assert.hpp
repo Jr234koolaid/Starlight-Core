@@ -15,7 +15,7 @@
         #include <intrin.h>
         #define SL_ASSERT_DEBUG_BREAK() __debugbreak()
     #elif defined(SL_COMPILER_CLANG)
-        #define SL_ASSERT_DEBUG_BREAK() __builtin_debugtrap();
+        #define SL_ASSERT_DEBUG_BREAK() __builtin_debugtrap()
     #elif defined(SL_COMPILER_GCC)
         #define SL_ASSERT_DEBUG_BREAK()
     #endif
@@ -47,8 +47,8 @@
             SL_ASSERT_DEBUG_BREAK();                                                                   \
         } ((void)0)
 #else
-    #define SL_ASSERT_IF(_condition_, ...)     \
-        ((void)0)
-    #define SL_ASSERT_IF_NOT(_condition_, ...) \
-        ((void)0)
+    #define SL_ASSERT_IF(_condition_, ...)     ((void)0)
+    #define SL_ASSERT_IF_NOT(_condition_, ...) ((void)0)
 #endif
+
+#define SL_ASSERT_IF_NULL(_condition_, ...) SL_ASSERT_IF_(_condition_ == nullptr, __VA_ARGS__)
