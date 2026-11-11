@@ -1,0 +1,45 @@
+// include/sl/Validate.hpp
+
+#pragma once
+
+#if defined(_DEBUG)
+    #include "sl/Assert.hpp"
+
+    #define SL_VALIDATE(_expression_, _return_, ...)   SL_ASSERT(_expression_ __VA_OPT__(,) __VA_ARGS__)
+    #define SL_VALIDATE_VOID(_expression_, ...)        SL_ASSERT(_expression_ __VA_OPT__(,) __VA_ARGS__)
+    #define SL_VALIDATE_BREAK(_expression_, ...)       SL_ASSERT(_expression_ __VA_OPT__(,) __VA_ARGS__)
+    #define SL_VALIDATE_CONTINUE(_expression_, ...)    SL_ASSERT(_expression_ __VA_OPT__(,) __VA_ARGS__)
+    #define SL_VALIDATE_CONSTRUCTOR(_expression_, ...) SL_ASSERT(_expression_ __VA_OPT__(,) __VA_ARGS__)
+#else
+    #include <exception>
+
+    #include "sl/Attributes.hpp"
+
+    #include "sl/core/Log.hpp"
+
+    #define SL_VALIDATE(_expression_, _return_, ...)   \
+        if (!(_expression_)) SL_UNLIKELY {             \
+            SL_LOG_ERROR("" __VA_ARGS__);              \
+            return _return_;                           \
+        } ((void)0)
+    #define SL_VALIDATE_VOID(_expression_, ...)        \
+        if (!(_expression_)) SL_UNLIKELY {             \
+            SL_LOG_ERROR("" __VA_ARGS__);              \
+            return;                                    \
+        } ((void)0)
+    #define SL_VALIDATE_BREAK(_expression_, ...)       \
+        if (!(_expression_)) SL_UNLIKELY {             \
+            SL_LOG_ERROR("" __VA_ARGS__);              \
+            break;                                     \
+        } ((void)0)
+    #define SL_VALIDATE_CONTINUE(_expression_, ...)    \
+        if (!(_expression_)) SL_UNLIKELY {             \
+            SL_LOG_ERROR("" __VA_ARGS__);              \
+            continue;                                  \
+        } ((void)0)
+    #define SL_VALIDATE_CONSTRUCTOR(_expression_, ...) \
+        if (!(_expression_)) SL_UNLIKELY {             \
+            SL_LOG_FATAL("" __VA_ARGS__);              \
+            std::terminate();                          \
+        } ((void)0)
+#endif

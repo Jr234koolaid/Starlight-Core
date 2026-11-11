@@ -14,7 +14,7 @@ project(StarlightCore VERSION 1.0.0 LANGUAGES CXX)
 #
 set(SL_FILE_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/sl/core/Log.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/sl/core/win32/Win32String.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/sl/core/MultiByteString.cpp"
 )
 
 set(SL_FILE_INCLUDES
@@ -26,7 +26,6 @@ set(SL_FILE_INCLUDES
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Attributes.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Byte.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Character.hpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Check.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Chrono.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Compare.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Compiler.hpp"
@@ -64,10 +63,11 @@ set(SL_FILE_INCLUDES
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/UnorderedMap.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/UnorderedSet.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Utility.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Validate.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Variant.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Vector.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/core/Log.hpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/core/win32/String.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/core/MultiByteString.hpp"
 )
 
 add_library(StarlightCore STATIC)
