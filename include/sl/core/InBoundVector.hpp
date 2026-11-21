@@ -101,6 +101,10 @@ namespace sl::core
             return mBoundables.empty();
         }
     public:
+        SL_NODISCARD constexpr bool has_capacity() const noexcept {
+            return mBoundables.size() < mBoundables.capacity();
+        }
+    public:
         SL_NODISCARD constexpr _Ty& at(size_t index) noexcept {
             SL_ASSERT(index < mBoundables.size(), "InBoundVector expects index to be valid");
             return mBoundables.at(index);
@@ -109,10 +113,6 @@ namespace sl::core
         SL_NODISCARD constexpr const _Ty& at(size_t index) const noexcept {
             SL_ASSERT(index < mBoundables.size(), "InBoundVector expects index to be valid");
             return mBoundables.at(index);
-        }
-    private:
-        SL_NODISCARD constexpr bool has_capacity() const noexcept {
-            return mBoundables.size() < mBoundables.capacity();
         }
     public:
         template<class... _Args>
