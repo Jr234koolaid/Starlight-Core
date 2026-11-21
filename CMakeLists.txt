@@ -67,6 +67,7 @@ set(SL_FILE_INCLUDES
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Variant.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/Vector.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/core/Log.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/core/InBoundVector.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/sl/core/MultiByteString.hpp"
 )
 
